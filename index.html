@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Logistics Dashboard Cards</title>
+  <style>
+    :root{
+      --bg:#0f1724;
+      --card:#0b1220;
+      --muted:#9aa4b2;
+      --accent:#4f46e5;
+      --glass: rgba(255,255,255,0.04);
+      --success:#10b981;
+      --danger:#ef4444;
+      --card-radius:12px;
+      --shadow: 0 6px 18px rgba(2,6,23,0.6);
+      --gap:18px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#071024 0%, #07172b 100%);color:#e6eef6}
+    .wrap{max-width:1100px;margin:36px auto;padding:28px}
+    h1{font-size:18px;margin:0 0 18px 0;color:var(--muted)}
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat( auto-fit, minmax(220px, 1fr) );
+      gap:var(--gap);
+    }
+
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--card-radius);
+      padding:18px;
+      box-shadow:var(--shadow);
+      border:1px solid rgba(255,255,255,0.03);
+      transition:transform .18s ease, box-shadow .18s ease;
+      display:flex;flex-direction:column;gap:12px;min-height:110px;
+    }
+    .card:hover{transform:translateY(-6px);box-shadow:0 14px 28px rgba(2,6,23,0.7)}
+
+    .card-top{display:flex;align-items:center;justify-content:space-between}
+    .title{font-weight:600;font-size:14px}
+    .icon{width:46px;height:46px;border-radius:10px;background:var(--glass);display:inline-grid;place-items:center}
+
+    .value{font-size:20px;font-weight:700}
+    .meta{font-size:12px;color:var(--muted)}
+
+    .small{display:flex;gap:10px;align-items:center}
+    .badge{font-size:12px;padding:6px 8px;border-radius:999px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.02)}
+
+    .progress{height:8px;background:rgba(255,255,255,0.03);border-radius:999px;overflow:hidden}
+    .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#06b6d4)}
+
+    .muted-line{font-size:12px;color:var(--muted)}
+
+    /* small responsive tweak */
+    @media (max-width:520px){.wrap{padding:16px}.card{padding:14px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Logistics & Inventory — Snapshot</h1>
+
+    <div class="grid">
+
+      <!-- Incoming Inventory Card -->
+      <section class="card" id="incoming-card">
+        <div class="card-top">
+          <div>
+            <div class="title">Incoming Inventory & New Products</div>
+            <div class="meta">Replenishments and new arrivals on the way</div>
+          </div>
+          <div class="icon" aria-hidden>
+            <!-- box icon -->
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7.5L12 3l9 4.5v6L12 21 3 13.5v-6z" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+        <div class="value" id="incoming-count">—</div>
+        <div class="small">
+          <div class="badge" id="incoming-next">ETA: —</div>
+          <div class="muted-line" id="incoming-pending">Pending receipts: —</div>
+        </div>
+      </section>
+
+      <!-- Outbound Shipments Card -->
+      <section class="card" id="outbound-card">
+        <div class="card-top">
+          <div>
+            <div class="title">Outbound Shipments</div>
+            <div class="meta">Orders packed, shipped, and en route</div>
+          </div>
+          <div class="icon" aria-hidden>
+            <!-- truck icon -->
+            <svg width="26" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 7h11v7h4l3 3V7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+        <div class="value" id="outbound-count">—</div>
+        <div class="small">
+          <div class="badge" id="outbound-in-transit">In transit: —</div>
+          <div class="muted-line" id="outbound-delayed">Delayed: —</div>
+        </div>
+      </section>
+
+      <!-- Receiving Process Card -->
+      <section class="card" id="receiving-card">
+        <div class="card-top">
+          <div>
+            <div class="title">Receiving Process</div>
+            <div class="meta">Confirm goods received and update inventory</div>
+          </div>
+          <div class="icon" aria-hidden>
+            <!-- check icon -->
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+        <div class="value" id="receiving-count">—</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="progress" aria-hidden><i id="receiving-progress" style="width:0%"></i></div>
+          <div class="muted-line" id="receiving-last">Last received: —</div>
+        </div>
+      </section>
+
+      <!-- Shopify Inventory Card -->
+      <section class="card" id="shopify-card">
+        <div class="card-top">
+          <div>
+            <div class="title">Shopify Inventory</div>
+            <div class="meta">Real-time stock levels & low-stock alerts</div>
+          </div>
+          <div class="icon" aria-hidden>
+            <!-- chart icon -->
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3v18h18" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 13v-6M12 17v-10M17 9v4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+        <div class="value" id="shopify-count">—</div>
+        <div class="small">
+          <div class="badge" id="shopify-low">Low stock: —</div>
+          <div class="muted-line" id="shopify-sync">Last sync: —</div>
+        </div>
+      </section>
+
+    </div>
+
+    <p style="margin-top:18px;font-size:13px;color:var(--muted)">Tip: replace the placeholder values with live data via your API integration (Shopify / WMS / carrier webhooks).</p>
+  </div>
+
+  <script>
+    /* Example: You can replace the following block with real API calls.
+       This script shows how to populate the cards dynamically.
+    */
+    const sampleData = {
+      incoming:{count:42, eta:'Sep 24, 2025', pending:6},
+      outbound:{count:19, inTransit:12, delayed:1},
+      receiving:{count:180, progress:72, last:'Sep 21, 2025 14:02'},
+      shopify:{count:2543, low:8, sync:'Sep 22, 2025 09:55'}
+    }
+
+    function populate(d){
+      document.getElementById('incoming-count').textContent = d.incoming.count + ' units';
+      document.getElementById('incoming-next').textContent = 'ETA: ' + d.incoming.eta;
+      document.getElementById('incoming-pending').textContent = 'Pending receipts: ' + d.incoming.pending;
+
+      document.getElementById('outbound-count').textContent = d.outbound.count + ' orders';
+      document.getElementById('outbound-in-transit').textContent = 'In transit: ' + d.outbound.inTransit;
+      document.getElementById('outbound-delayed').textContent = 'Delayed: ' + d.outbound.delayed;
+
+      document.getElementById('receiving-count').textContent = d.receiving.count + ' received today';
+      document.getElementById('receiving-progress').style.width = d.receiving.progress + '%';
+      document.getElementById('receiving-last').textContent = 'Last received: ' + d.receiving.last;
+
+      document.getElementById('shopify-count').textContent = d.shopify.count + ' SKUs tracked';
+      document.getElementById('shopify-low').textContent = 'Low stock: ' + d.shopify.low;
+      document.getElementById('shopify-sync').textContent = 'Last sync: ' + d.shopify.sync;
+    }
+
+    // populate sample data on load
+    populate(sampleData);
+
+    // Example: You could fetch live values from your backend like this:
+    // fetch('/api/dashboard-metrics').then(r=>r.json()).then(populate)
+  </script>
+</body>
+</html>
