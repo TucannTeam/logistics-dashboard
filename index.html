@@ -187,9 +187,37 @@
 </body>
 </html>
 
+<div id="summary">
+  <h2>Order Summary (Last 7 Days)</h2>
+  <p>Processed: <span id="processedCount">0</span></p>
+  <p>In Transit: <span id="inTransitCount">0</span></p>
+  <p>Delayed: <span id="delayedCount">0</span></p>
+</div>
+
+<table id="ordersTable">
+  <thead>
+    <tr>
+      <th>Order ID</th>
+      <th>Created At</th>
+      <th>Customer</th>
+      <th>Fulfillment Status</th>
+      <th>Tracking Company</th>
+      <th>Tracking Number</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
+
 <!DOCTYPE html>
 <html>
 <head>
+  
+  <style>
+  .processed { background-color: #e8f5e9; }  /* light green */
+  .in-transit { background-color: #fffde7; } /* light yellow */
+  .delayed { background-color: #ffebee; }    /* light red */
+</style>
+
   <meta charset="utf-8">
   <title>Logistics Dashboard</title>
   <style>
@@ -241,5 +269,102 @@
 
     loadInventory();
   </script>
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Shopify Orders Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background: #333; color: white; }
+    tr:nth-child(even) { background: #f9f9f9; }
+
+    /* Highlighting classes */
+    .processed { background-color: #e8f5e9; }  /* light green */
+    .in-transit { background-color: #fffde7; } /* light yellow */
+    .delayed { background-color: #ffebee; }    /* light red */
+  </style>
+</head>
+<body>
+  <h1>Order Summary (Last 7 Days)</h1>
+  <div id="summary">
+    <p>Processed: <span id="processedCount">0</span></p>
+    <p>In Transit: <span id="inTransitCount">0</span></p>
+    <p>Delayed: <span id="delayedCount">0</span></p>
+  </div>
+
+  <table id="ordersTable">
+    <thead>
+      <tr>
+        <th>Order ID</th>
+        <th>Created At</th>
+        <th>Customer</th>
+        <th>Fulfillment Status</th>
+        <th>Tracking Company</th>
+        <th>Tracking Number</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- 👇 Place the script just before </body> -->
+  <script>
+    async function loadOrders() {
+      const url = "https://script.google.com/macros/s/XXXXXXXXXXXX/exec?format=json"; // replace with your Web App URL
+      const res = await fetch(url);
+      const data = await res.json();
+
+      let processed = 0, inTransit = 0, delayed = 0;
+      const now = new Date();
+
+      const table = document.getElementById("ordersTable").querySelector("tbody");
+      const headers = Object.keys(data[0]);
+
+      data.forEach(order => {
+        const tr = document.createElement("tr");
+
+        // determine row status
+        if (order["Fulfillment Status"] === "fulfilled") {
+          processed++;
+
+          if (order["Tracking Number"]) {
+            inTransit++;
+
+            const createdAt = new Date(order["Created At"]);
+            const ageInDays = Math.floor((now - createdAt) / (1000 * 60 * 60 * 24));
+            if (ageInDays > 5) {
+              delayed++;
+              tr.classList.add("delayed");
+            } else {
+              tr.classList.add("in-transit");
+            }
+          } else {
+            tr.classList.add("processed");
+          }
+        }
+
+        headers.forEach(h => {
+          const td = document.createElement("td");
+          td.textContent = order[h] || "";
+          tr.appendChild(td);
+        });
+        table.appendChild(tr);
+      });
+
+      // update summary counts
+      document.getElementById("processedCount").textContent = processed;
+      document.getElementById("inTransitCount").textContent = inTransit;
+      document.getElementById("delayedCount").textContent = delayed;
+    }
+
+    loadOrders();
+  </script>
+</body>
+</html>
+
+  
 </body>
 </html>
