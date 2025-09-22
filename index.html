@@ -194,13 +194,13 @@
   <p>Delayed: <span id="delayedCount">0</span></p>
 </div>
 
-<table id="ordersTable">
+<table id="details-table">
   <thead>
     <tr>
       <th>Order ID</th>
-      <th>Created At</th>
       <th>Customer</th>
-      <th>Fulfillment Status</th>
+      <th>Status</th>
+      <th>Created At</th>
       <th>Tracking Company</th>
       <th>Tracking Number</th>
     </tr>
@@ -488,6 +488,36 @@
       });
     });
   </script>
+
+function showOrderDetails(status) {
+  const tableBody = document.querySelector("#details-table tbody");
+  tableBody.innerHTML = "";
+
+  const filteredOrders = allOrders.filter(o => o.status === status);
+
+  filteredOrders.forEach(order => {
+    const row = document.createElement("tr");
+    row.classList.add(
+      order.status === "processed" ? "processed" :
+      order.status === "in_transit" ? "in-transit" :
+      order.status === "delayed" ? "delayed" : ""
+    );
+
+    row.innerHTML = `
+      <td>${order.id}</td>
+      <td>${order.customer_name}</td>
+      <td>${order.status}</td>
+      <td>${new Date(order.created_at).toLocaleString()}</td>
+      <td>${order.tracking_company || ""}</td>
+      <td>${order.tracking_number || ""}</td>
+    `;
+    tableBody.appendChild(row);
+  });
+
+  document.getElementById("order-details").style.display = "block";
+}
+
+  
 </body>
 </html>
   
