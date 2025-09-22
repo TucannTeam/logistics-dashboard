@@ -362,6 +362,135 @@
 
     loadOrders();
   </script>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Shopify Orders Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background: #333; color: white; }
+    tr:nth-child(even) { background: #f9f9f9; }
+
+    /* Highlighting classes */
+    .processed { background-color: #e8f5e9; }  
+    .in-transit { background-color: #fffde7; } 
+    .delayed { background-color: #ffebee; }    
+
+    /* Summary bar styles */
+    .summary-item {
+      margin-right: 15px;
+      cursor: pointer;
+      font-weight: bold;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: #f0f0f0;
+    }
+    .summary-item:hover { background: #ddd; }
+
+    #order-details {
+      display: none;
+      border: 1px solid #ccc;
+      padding: 15px;
+      border-radius: 8px;
+      background: #fff;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Order Summary (Last 7 Days)</h1>
+  <div id="order-summary">
+    <span class="summary-item" data-status="processed">Processed: 0</span>
+    <span class="summary-item" data-status="in_transit">In Transit: 0</span>
+    <span class="summary-item" data-status="delayed">Delayed: 0</span>
+  </div>
+
+  <div id="order-details">
+    <h3>Order Details</h3>
+    <table id="details-table">
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Status</th>
+          <th>Created At</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <!-- 2️⃣ JavaScript -->
+  <script>
+    const PROXY_URL = "YOUR_GOOGLE_SCRIPT_WEB_APP_URL"; // paste your Apps Script Web App URL here
+    let allOrders = [];
+
+    // Fetch orders from Apps Script proxy
+    async function fetchOrders() {
+      const response = await fetch(PROXY_URL);
+      if (!response.ok) {
+        console.error("Error fetching from proxy:", response.statusText);
+        return;
+      }
+
+      allOrders = await response.json();
+      updateSummary();
+    }
+
+    // Update summary counts in the top bar
+    function updateSummary() {
+      const processed = allOrders.filter(o => o.status === "processed").length;
+      const inTransit = allOrders.filter(o => o.status === "in_transit").length;
+      const delayed = allOrders.filter(o => o.status === "delayed").length;
+
+      document.querySelector('[data-status="processed"]').textContent = `Processed: ${processed}`;
+      document.querySelector('[data-status="in_transit"]').textContent = `In Transit: ${inTransit}`;
+      document.querySelector('[data-status="delayed"]').textContent = `Delayed: ${delayed}`;
+    }
+
+    // Show details table when clicking a summary item
+    function showOrderDetails(status) {
+      const tableBody = document.querySelector("#details-table tbody");
+      tableBody.innerHTML = "";
+
+      const filteredOrders = allOrders.filter(o => o.status === status);
+
+      filteredOrders.forEach(order => {
+        const row = document.createElement("tr");
+        row.classList.add(
+          order.status === "processed" ? "processed" :
+          order.status === "in_transit" ? "in-transit" :
+          order.status === "delayed" ? "delayed" : ""
+        );
+        row.innerHTML = `
+          <td>${order.id}</td>
+          <td>${order.customer_name}</td>
+          <td>${order.status}</td>
+          <td>${new Date(order.created_at).toLocaleString()}</td>
+        `;
+        tableBody.appendChild(row);
+      });
+
+      document.getElementById("order-details").style.display = "block";
+    }
+
+    // Hook up click events
+    document.addEventListener("DOMContentLoaded", () => {
+      fetchOrders();
+      document.querySelectorAll(".summary-item").forEach(item => {
+        item.addEventListener("click", function() {
+          const status = this.getAttribute("data-status");
+          showOrderDetails(status);
+        });
+      });
+    });
+  </script>
+</body>
+</html>
+  
 </body>
 </html>
 
