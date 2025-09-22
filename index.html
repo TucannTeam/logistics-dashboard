@@ -187,9 +187,59 @@
 </body>
 </html>
 
-<iframe 
-  src="https://script.google.com/macros/s/AKfycbzzKoM9_TdZkeLUYgci43vE9BjxvzjLP43qR0n8NnxxRcQ86We0WSDfePJvpd2x5wBDdA/exec" 
-  width="100%" 
-  height="800" 
-  style="border:none;">
-</iframe>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Logistics Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background: #333; color: white; }
+    tr:nth-child(even) { background: #f9f9f9; }
+  </style>
+</head>
+<body>
+  <h1>Shopify Inventory Dashboard</h1>
+  <table id="inventoryTable">
+    <thead>
+      <tr id="headerRow"></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    async function loadInventory() {
+      const url = "https://script.google.com/macros/s/XXXXXXXXXXXX/exec?format=json"; // <-- replace
+      const res = await fetch(url);
+      const data = await res.json();
+
+      const table = document.getElementById("inventoryTable");
+      const headerRow = document.getElementById("headerRow");
+      const tbody = table.querySelector("tbody");
+
+      // Create headers
+      const headers = Object.keys(data[0]);
+      headers.forEach(h => {
+        const th = document.createElement("th");
+        th.textContent = h;
+        headerRow.appendChild(th);
+      });
+
+      // Fill rows
+      data.forEach(row => {
+        const tr = document.createElement("tr");
+        headers.forEach(h => {
+          const td = document.createElement("td");
+          td.textContent = row[h];
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
+    }
+
+    loadInventory();
+  </script>
+</body>
+</html>
